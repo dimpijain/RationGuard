@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { jwtDecode } from 'jwt-decode';
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
@@ -27,9 +27,22 @@ export default function Login() {
     setLoading(false);
 
     if (res.ok) {
-      localStorage.setItem('token', data.token);
-      setMessage('Login successful! Redirecting...');
-      setTimeout(() => navigate('/dashboard'), 1500); // we’ll create this page soon
+      
+      const decoded = jwtDecode(data.token);
+localStorage.setItem('token', data.token);
+
+// 👇 Add role-based redirection
+switch (decoded.role) {
+  case 'admin':
+    navigate('/admin-panel');
+    break;
+  case 'shop':
+    navigate('/shop-dashboard');
+    break;
+  default:
+    navigate('/dashboard');
+}
+
     } else {
       setMessage(data.message || 'Login failed');
     }

@@ -7,6 +7,7 @@ export default function Signup() {
     name: '',
     email: '',
     password: '',
+    role:'',
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function Signup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-
+      console.log(form);
       const data = await res.json();
       setLoading(false);
 
@@ -85,6 +86,24 @@ export default function Signup() {
               placeholder="••••••••"
             />
           </div>
+          <div className="mb-4">
+  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+    Select Role
+  </label>
+  <select
+    id="role"
+    name="role"
+    value={form.role}
+    onChange={handleChange}
+    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+    required
+  >
+    <option value="">-- Select Role --</option>
+    <option value="citizen">Citizen</option>
+    <option value="shop">Shop</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
 
           <button
             type="submit"

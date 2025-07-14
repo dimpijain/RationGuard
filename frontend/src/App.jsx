@@ -8,6 +8,9 @@ import Home from './pages/Home'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import ShopDashboard from './pages/ShopDashboard';
+import AdminPanel from './pages/AdminPanel';
+
 function App() {
   return (
     <Router>
@@ -18,6 +21,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           {/* Add more routes here as needed */}
           <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/admin-panel" element={<AdminPanel/>}/>
+          <Route path="/shop-dashboard" element={<ShopDashboard/>}/>
         </Routes>
 
         <ToastContainer
