@@ -14,5 +14,11 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/protected', require('./routes/protected'));
 
+const reportRoute = require('./routes/report');
+app.use('/api/reports', reportRoute);
+
+app.use('/uploads', express.static('uploads'));
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import ShopDashboard from './pages/ShopDashboard';
 import AdminPanel from './pages/AdminPanel';
 
+import ReportIssue from './pages/ReportIssue';
+import MyReports from './pages/MyReports';
 function App() {
   return (
     <Router>
@@ -23,6 +25,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/admin-panel" element={<AdminPanel/>}/>
           <Route path="/shop-dashboard" element={<ShopDashboard/>}/>
+          <Route path="/report" element={<ReportIssue/>}/>
+          <Route path="/my-reports" element={<MyReports />} />
+
         </Routes>
 
         <ToastContainer
