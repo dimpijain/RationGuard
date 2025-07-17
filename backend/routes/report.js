@@ -65,5 +65,63 @@ router.get('/mine', authenticateToken, async (req, res) => {
   }
 });
 
+//edit report
+// PUT /api/reports/:id — Edit a report
+// PUT /api/reports/:id — Edit a report
+router.put('/:id', authenticateToken, upload.single('image'), async (req, res) => {
+  const { issueType, shopName, location, description } = req.body;
+
+  try {
+    const updateFields = {
+      issueType,
+      shopName,
+      location,
+      description,
+    };
+
+    if (req.file) {
+      updateFields.imagePath = req.file.filename;
+    }
+
+    const updatedReport = await Report.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedReport) return res.status(404).json({ message: 'Report not found or not authorized' });
+
+    res.status(200).json({ message: 'Report updated successfully', report: updatedReport });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Failed to update report' });
+  }
+});
+
+
+//delete report
+// DELETE /api/reports/:id — Delete a report
+// DELETE /api/reports/:id — Delete a report by ID
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+
+    // Optional: ensure user owns the report
+    if (report.userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized to delete this report' });
+    }
+
+    await Report.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Report deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error deleting report' });
+  }
+});
+
 
 module.exports = router;

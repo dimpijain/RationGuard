@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
   ClipboardDocumentListIcon,
   CheckBadgeIcon,
-  ClockIcon,
-  DocumentArrowDownIcon,
   ArrowRightOnRectangleIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [issuedCount, setIssuedCount] = useState(0);
   const [resolvedCount, setResolvedCount] = useState(0);
   const [userName, setUserName] = useState('User');
@@ -17,10 +18,8 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return navigate('/login');
-
     const decoded = JSON.parse(atob(token.split('.')[1]));
     setUserName(decoded.name);
-
     fetchReports();
   }, []);
 
@@ -33,7 +32,7 @@ export default function Dashboard() {
       });
       const data = await res.json();
       setIssuedCount(data.length);
-      setResolvedCount(data.filter((report) => report.status === 'resolved').length);
+      setResolvedCount(data.filter((r) => r.status === 'resolved').length);
     } catch (err) {
       console.error('Error fetching reports:', err);
     }
@@ -44,74 +43,97 @@ export default function Dashboard() {
     navigate('/login');
   };
 
+  const navItems = [
+    { label: 'Dashboard', onClick: () => navigate('/dashboard') },
+    { label: 'Report Issue', onClick: () => navigate('/report') },
+    { label: 'My Reports', onClick: () => navigate('/my-reports') },
+  ];
+
   const stats = [
     {
       name: 'Reports Issued',
       value: issuedCount,
       icon: ClipboardDocumentListIcon,
-      color: 'text-indigo-600 dark:text-indigo-400',
+      color: 'text-[#6D597A]',
     },
     {
       name: 'Reports Resolved',
       value: resolvedCount,
       icon: CheckBadgeIcon,
-      color: 'text-green-600 dark:text-green-400',
+      color: 'text-[#B56576]',
     },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50 dark:bg-[#171e2a]">
+    <div className="min-h-screen flex bg-[#FAF9F6] text-[#355070] font-sans">
       {/* Sidebar */}
-      <aside className="w-full lg:w-64 bg-white dark:bg-[#1b2230] p-6 shadow-lg">
-        <div className="text-2xl font-bold text-[#355070] dark:text-white mb-10">RationGuard</div>
-        <nav className="space-y-4">
+      <aside
+        className={`flex flex-col bg-white shadow-lg transition-all duration-300
+          ${sidebarCollapsed ? 'w-20' : 'w-64'}`}
+        style={{ minHeight: '100vh' }}
+      >
+        {/* Logo and toggle */}
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200">
+          {!sidebarCollapsed && (
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-[#355070] leading-none">
+                RationGuard
+              </span>
+              <span className="text-lg font-semibold text-[#B56576] mt-1">Hi, {userName}</span>
+            </div>
+          )}
           <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 w-full text-left font-medium text-[#355070] dark:text-white"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="text-[#355070] hover:text-[#EAAC8B] transition"
           >
-            📊 Dashboard
+            {sidebarCollapsed ? (
+              <ChevronDoubleRightIcon className="w-6 h-6" />
+            ) : (
+              <ChevronDoubleLeftIcon className="w-6 h-6" />
+            )}
           </button>
-          <button
-            onClick={() => navigate('/report')}
-            className="flex items-center gap-2 w-full text-left font-medium text-[#355070] dark:text-white"
-          >
-            📝 Report Issue
-          </button>
-          <button
-            onClick={() => navigate('/my-reports')}
-            className="flex items-center gap-2 w-full text-left font-medium text-[#355070] dark:text-white"
-          >
-            📝 Reports
-          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex flex-col mt-8 space-y-8 px-4">
+          {navItems.map(({ label, onClick }) => (
+            <button
+              key={label}
+              onClick={onClick}
+              className="flex items-center gap-4 px-3 py-3 rounded-md text-[#355070] font-medium hover:bg-[#EAAC8B] hover:text-white transition"
+            >
+              {!sidebarCollapsed ? label : label.charAt(0)}
+            </button>
+          ))}
         </nav>
-        <div className="mt-auto pt-10">
-          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Hello, {userName}</p>
+
+        {/* Logout */}
+        <div className="mt-auto p-6 border-t border-gray-200">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-red-600 hover:underline text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-[#B56576] text-lg font-semibold hover:bg-[#B56576] hover:text-white transition"
           >
-            <ArrowRightOnRectangleIcon className="w-5 h-5" />
-            Logout
+            <ArrowRightOnRectangleIcon className="w-6 h-6" />
+            {!sidebarCollapsed && <span>Logout</span>}
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-[#355070] dark:text-white mb-6">Dashboard</h1>
+      {/* Main Content */}
+      <main className="flex-1 p-10">
+        <h1 className="text-4xl font-bold mb-8 text-[#355070]">Dashboard</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl">
           {stats.map((stat) => (
             <div
               key={stat.name}
-              className="bg-white dark:bg-[#232d3b] p-6 rounded-xl shadow flex items-center gap-4 hover:shadow-2xl transition"
+              className="bg-white p-8 rounded-xl shadow flex items-center gap-6 hover:shadow-2xl transition"
             >
-              <stat.icon className={`w-10 h-10 ${stat.color}`} />
+              <stat.icon className={`w-12 h-12 ${stat.color}`} />
               <div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-300">{stat.name}</div>
+                <div className="text-4xl font-bold text-[#355070]">{stat.value}</div>
+                <div className="text-lg text-[#6D597A]">{stat.name}</div>
               </div>
             </div>
           ))}
